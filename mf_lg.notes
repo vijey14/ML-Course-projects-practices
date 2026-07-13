@@ -1,0 +1,856 @@
+# Machine Learning Notes - Lab 2
+## Multiple Variable Linear Regression
+
+---
+
+# Objective
+
+Build a Multiple Variable Linear Regression model from scratch and understand how Gradient Descent learns the best weights (w) and bias (b).
+
+---
+
+# Dataset
+
+Features (X_train)
+
+| House Size | Bedrooms | Floors | Age |
+|------------|----------|--------|-----|
+|2104|5|1|45|
+|1416|3|2|40|
+|852|2|1|35|
+
+Target (y_train)
+
+| Price |
+|-------|
+|460|
+|232|
+|178|
+
+Shape
+
+```
+X_train → (3,4)
+
+3 = Training Examples (Rows)
+
+4 = Features (Columns)
+```
+
+```
+y_train → (3,)
+```
+
+---
+
+# Overall Flow
+
+```
+Training Data
+      │
+      ▼
+Predict
+      │
+      ▼
+Compute Cost
+      │
+      ▼
+Compute Gradient
+      │
+      ▼
+Gradient Descent
+      │
+      ▼
+Update w and b
+      │
+      ▼
+Repeat Until Cost is Minimum
+```
+
+---
+
+# Important Variables
+
+## X_train
+
+Stores all input features.
+
+Shape
+
+```
+(m,n)
+
+m = Number of Training Examples
+
+n = Number of Features
+```
+
+Example
+
+```
+(3,4)
+
+↓
+
+3 Houses
+
+4 Features
+```
+
+---
+
+## y_train
+
+Stores actual target values.
+
+Shape
+
+```
+(m,)
+```
+
+---
+
+## w (Weights)
+
+Every feature has one weight.
+
+```
+Size -----------> w1
+
+Bedrooms -------> w2
+
+Floors ---------> w3
+
+Age ------------> w4
+```
+
+Shape
+
+```
+(n,)
+```
+
+---
+
+## b (Bias)
+
+Single value added after the dot product.
+
+Shape
+
+```
+Scalar
+```
+
+---
+
+# Function 1 : predict()
+
+Purpose
+
+Predicts the price of ONE training example.
+
+Formula
+
+```
+Prediction
+
+=
+
+w·x + b
+```
+
+Code
+
+```python
+prediction = np.dot(x,w) + b
+```
+
+Flow
+
+```
+Input Features
+
+↓
+
+Multiply with Weights
+
+↓
+
+Add Everything
+
+↓
+
+Add Bias
+
+↓
+
+Prediction
+```
+
+Returns
+
+```
+Scalar
+```
+
+---
+
+# Function 2 : compute_cost()
+
+Purpose
+
+Measures how wrong the model is.
+
+Formula
+
+```
+             m
+J = 1/2m Σ (Prediction-Actual)²
+            i=1
+```
+
+Flow
+
+```
+For Every House
+
+↓
+
+Predict
+
+↓
+
+Compare with Actual
+
+↓
+
+Find Error
+
+↓
+
+Square Error
+
+↓
+
+Add Errors
+
+↓
+
+Divide by 2m
+
+↓
+
+Return Cost
+```
+
+Lower Cost
+
+↓
+
+Better Model
+
+---
+
+# Why Square the Error?
+
+Example
+
+Prediction
+
+```
+460
+```
+
+Actual
+
+```
+500
+```
+
+Error
+
+```
+-40
+```
+
+Square
+
+```
+(-40)^2
+
+=
+
+1600
+```
+
+Reasons
+
+✔ Removes negative values
+
+✔ Punishes larger mistakes
+
+---
+
+# Function 3 : compute_gradient()
+
+Purpose
+
+Calculates how every parameter should change.
+
+Returns
+
+```
+dj_dw
+
+Gradient of every Weight
+
+dj_db
+
+Gradient of Bias
+```
+
+Flow
+
+```
+For Every House
+
+↓
+
+Predict
+
+↓
+
+Calculate Error
+
+↓
+
+For Every Feature
+
+↓
+
+Update Gradient
+
+↓
+
+Average Gradient
+
+↓
+
+Return dj_dw and dj_db
+```
+
+This function DOES NOT update the weights.
+
+It only calculates the gradients.
+
+---
+
+# Function 4 : gradient_descent()
+
+Purpose
+
+Learns the best values of w and b.
+
+Flow
+
+```
+Repeat
+
+↓
+
+Compute Gradient
+
+↓
+
+Update Weight
+
+↓
+
+Update Bias
+
+↓
+
+Compute New Cost
+
+↓
+
+Repeat
+```
+
+Update Equations
+
+```
+w = w - α × dj_dw
+
+b = b - α × dj_db
+```
+
+---
+
+# Learning Rate (α)
+
+Controls step size.
+
+Small α
+
+```
+Very Slow Learning
+```
+
+Good α
+
+```
+Fast Convergence
+```
+
+Large α
+
+```
+Overshoots
+
+Diverges
+```
+
+---
+
+# Cost History
+
+Stores cost after every iteration.
+
+```
+J_history
+```
+
+Graph
+
+```
+Cost
+
+│
+
+│\
+
+│ \
+
+│  \
+
+│   \_____
+
+└────────────
+
+Iterations
+```
+
+---
+
+# Important NumPy Functions
+
+## np.array()
+
+Creates NumPy arrays.
+
+---
+
+## np.dot()
+
+Calculates Dot Product.
+
+```
+x
+
+↓
+
+[2104,5,1,45]
+
+w
+
+↓
+
+[w1,w2,w3,w4]
+
+↓
+
+2104×w1
+
++
+
+5×w2
+
++
+
+1×w3
+
++
+
+45×w4
+```
+
+Returns one scalar.
+
+---
+
+## np.zeros()
+
+Creates an array filled with zeros.
+
+Example
+
+```python
+np.zeros((4,))
+```
+
+Output
+
+```
+[0 0 0 0]
+```
+
+---
+
+## np.zeros_like()
+
+Creates zeros having the same shape as another array.
+
+Example
+
+```python
+initial_w = np.zeros_like(w_init)
+```
+
+---
+
+## X.shape
+
+Returns dimensions.
+
+Example
+
+```
+X.shape
+
+↓
+
+(3,4)
+```
+
+Means
+
+```
+3 Rows
+
+4 Columns
+```
+
+---
+
+## copy.deepcopy()
+
+Creates a completely independent copy.
+
+Used to avoid changing the original variable.
+
+---
+
+# Shapes Used
+
+```
+X_train
+
+↓
+
+(3,4)
+```
+
+```
+y_train
+
+↓
+
+(3,)
+```
+
+```
+w
+
+↓
+
+(4,)
+```
+
+```
+b
+
+↓
+
+Scalar
+```
+
+```
+Prediction
+
+↓
+
+Scalar
+```
+
+```
+Cost
+
+↓
+
+Scalar
+```
+
+```
+dj_dw
+
+↓
+
+(4,)
+```
+
+```
+dj_db
+
+↓
+
+Scalar
+```
+
+---
+
+# Complete Workflow
+
+```
+Training Data
+
+↓
+
+Predict()
+
+↓
+
+Prediction
+
+↓
+
+Compute Cost()
+
+↓
+
+How Wrong?
+
+↓
+
+Compute Gradient()
+
+↓
+
+How Should We Change?
+
+↓
+
+Gradient Descent()
+
+↓
+
+Update Weights
+
+↓
+
+Repeat
+
+↓
+
+Minimum Cost
+
+↓
+
+Best Model
+```
+
+---
+
+# New Terms Learned
+
+### Feature
+
+Input variable.
+
+Example
+
+```
+House Size
+
+Bedrooms
+
+Floors
+
+Age
+```
+
+---
+
+### Training Example
+
+One complete row of data.
+
+Example
+
+```
+[2104,5,1,45]
+```
+
+---
+
+### Weight (w)
+
+Importance of every feature.
+
+---
+
+### Bias (b)
+
+Constant added to every prediction.
+
+---
+
+### Prediction
+
+Estimated output.
+
+Formula
+
+```
+f(x)=w·x+b
+```
+
+---
+
+### Error
+
+Difference between prediction and actual value.
+
+```
+Error
+
+=
+
+Prediction
+
+-
+
+Actual
+```
+
+---
+
+### Cost Function
+
+Measures the overall error of the model.
+
+---
+
+### Gradient
+
+Direction in which each parameter should move.
+
+---
+
+### Gradient Descent
+
+Optimization algorithm that repeatedly updates w and b until cost becomes minimum.
+
+---
+
+### Learning Rate (α)
+
+Controls how much the parameters change in every iteration.
+
+---
+
+### Iteration
+
+One complete cycle of
+
+```
+Predict
+
+↓
+
+Cost
+
+↓
+
+Gradient
+
+↓
+
+Update
+```
+
+---
+
+# Key Equations
+
+Prediction
+
+```
+f(x)=w·x+b
+```
+
+Cost
+
+```
+          1
+J =  -------- Σ(Prediction-Actual)²
+       2m
+```
+
+Weight Update
+
+```
+w = w - α × dj_dw
+```
+
+Bias Update
+
+```
+b = b - α × dj_db
+```
+
+---
+
+# Final Summary
+
+```
+Training Data
+      │
+      ▼
+Prediction
+      │
+      ▼
+Error
+      │
+      ▼
+Cost
+      │
+      ▼
+Gradient
+      │
+      ▼
+Update Weights & Bias
+      │
+      ▼
+Repeat Until Cost is Minimum
+```
+
+---
+
+# One Line Summary
+
+```
+Predict → Measure Error → Calculate Gradient → Update Parameters → Repeat Until Cost Becomes Minimum.
+```
